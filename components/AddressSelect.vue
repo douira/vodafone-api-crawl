@@ -58,6 +58,25 @@
 import { getAddress, updateOSMId } from "~/util/geo"
 import debounce from "debounce-promise"
 
+/*
+TODO: see https://wiki.openstreetmap.org/wiki/Overpass_API#Around
+http://overpass-turbo.eu/
+
+node
+  [railway=station]
+  (around:5000,52.5164,13.3777);
+out;
+
+<query type="node">
+  <has-kv k="name" v="Bristol"/>
+</query>
+<around radius="10"/>
+<print/>
+
+Use https://github.com/KoRiGaN/Vue2Leaflet
+Use the saved postman requests for getting info
+*/
+
 export default {
   data() {
     return {
