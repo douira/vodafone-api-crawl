@@ -57,10 +57,6 @@ export default {
   //Plugins to load before mounting the App
   plugins: ["~/plugins/bus"],
 
-  axios: {
-    https: true
-  },
-
   vuetify: {
     optionsPath: "~/util/vuetify.options.js",
     defaultAssets: { font: true, icons: "mdi" }
@@ -70,11 +66,7 @@ export default {
     //treeShake: true
   },
 
-  //Nuxt.js modules
-  modules: [
-    //http request module
-    "@nuxtjs/axios"
-  ],
+  //include vuetify as a module
   buildModules: ["@nuxtjs/vuetify"],
 
   //Build configuration
