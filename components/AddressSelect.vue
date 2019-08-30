@@ -23,7 +23,7 @@
       <p v-else class="text--secondary">Geolocation is not supported.</p>
     </div>
     <v-layout row wrap class="pa-1 pt-0">
-      <v-flex xs12 sm6 md4 class="pa-2">
+      <v-flex xs12 sm4 class="pa-2">
         <v-text-field
           v-model="address.zipcode"
           required
@@ -32,7 +32,7 @@
           @input="onAddressChange"
         />
       </v-flex>
-      <v-flex xs12 sm6 md4 class="pa-2">
+      <v-flex xs12 sm5 md4 class="pa-2">
         <v-text-field
           v-model="address.street"
           required
@@ -40,7 +40,7 @@
           @input="onAddressChange"
         />
       </v-flex>
-      <v-flex xs12 md4 class="pa-2">
+      <v-flex xs12 sm3 md4 class="pa-2">
         <v-text-field
           v-model="address.housenumber"
           required
