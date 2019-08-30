@@ -37,7 +37,7 @@ export default {
 
   //Headers of the page
   head: {
-    title: "Nuxt SPA Template by douira",
+    title: "Vodafone Availability API",
     meta: [
       { charset: "utf-8" },
       {
