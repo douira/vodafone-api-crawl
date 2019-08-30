@@ -1,7 +1,7 @@
 {
-  "name": "nuxt-spa-template",
+  "name": "vodafone-api-crawl",
   "version": "1.0.0",
-  "description": "This is a template for a simple Nuxt.js project using Vuetify",
+  "description": "Uses a Vodafone API to construct a map of service availability",
   "author": "douira",
   "private": false,
   "license": "MIT",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/douira/nuxt-spa-template.git"
+    "url": "https://github.com/douira/vodafone-api-crawl.git"
   },
   "scripts": {
     "dev": "nuxt",

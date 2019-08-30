@@ -1,5 +1,5 @@
-# nuxt-spa-template
-> **nuxt-spa-template** is a template for a simple Nuxt.js project using Vuetify and generating for GitHub Pages
+# vodafone-api-crawl
+> **vodafone-api-crawl** crawls the vodafone api for service availability data
 
 # Usage
 ## Running from on the command line

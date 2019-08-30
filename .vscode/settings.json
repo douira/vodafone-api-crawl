@@ -81,6 +81,8 @@
     "Vuetify",
     "axios",
     "errored",
+    "generate",
+    "ghpages",
     "iframe",
     "instanceof",
     "nuxt",
