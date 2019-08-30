@@ -1,0 +1,98 @@
+{
+  "eslint.validate": [
+    {
+      "language": "vue",
+      "autoFix": true
+    },
+    {
+      "language": "html",
+      "autoFix": true
+    },
+    {
+      "language": "javascript",
+      "autoFix": true
+    }
+  ],
+  "[javascript]": {
+    "editor.formatOnSave": false
+  },
+  "[vue]": {
+    "editor.formatOnSave": false
+  },
+  "eslint.autoFixOnSave": true,
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "files.insertFinalNewline": true,
+  "prettier.requireConfig": true,
+  "vetur.validation.template": false,
+  "vetur.validation.script": false,
+  "vetur.format.defaultFormatter.js": "prettier-eslint",
+  "javascript.format.enable": false,
+  "javascript.validate.enable": false,
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.nuxt": true
+  },
+  "cSpell.language": "en",
+  "cSpell.allowCompoundWords": true,
+  "cSpell.enabledLanguageIds": [
+    "asciidoc",
+    "c",
+    "cpp",
+    "csharp",
+    "css",
+    "go",
+    "handlebars",
+    "html",
+    "jade",
+    "javascript",
+    "javascriptreact",
+    "json",
+    "jsonc",
+    "latex",
+    "less",
+    "markdown",
+    "php",
+    "plaintext",
+    "pub",
+    "python",
+    "restructuredtext",
+    "rust",
+    "scss",
+    "text",
+    "typescript",
+    "typescriptreact",
+    "vue",
+    "yml"
+  ],
+  "cSpell.ignorePaths": [
+    "**/package-lock.json",
+    "**/node_modules/**",
+    "**/vscode-extension/**",
+    "**/.git/**",
+    ".vscode",
+    "typings",
+    "**/.nuxt/**",
+    "**/dist/**",
+    "**/static/**"
+  ],
+  "cSpell.words": [
+    "Vuetify",
+    "axios",
+    "errored",
+    "iframe",
+    "instanceof",
+    "nuxt",
+    "nuxtjs",
+    "onbeforeunload",
+    "repo",
+    "rgba",
+    "skippable",
+    "sonarjs",
+    "srcdoc",
+    "truthy",
+    "typeof",
+    "vuex"
+  ]
+}

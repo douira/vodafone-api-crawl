@@ -1,0 +1,10 @@
+/*wrap text better on small screens*/
+html {
+  word-break: break-word;
+  word-wrap: break-word;
+}
+
+/*removes extra space from between lines*/
+.condensed-text {
+  line-height: 1em !important;
+}
