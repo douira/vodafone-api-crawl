@@ -1,9 +1,9 @@
 <template>
   <v-form ref="form" v-model="formValid" @submit.prevent>
     <h4 class="title">Select an address as the starting point</h4>
-    <div class="my-3">
-      <v-alert v-if="error" type="error">
-        An error occurred while fetching your current address:
+    <div class="mt-3 mb-2">
+      <v-alert v-if="error" type="error" border="left">
+        An error occurred while fetching geo data:
         {{ error.message }}
       </v-alert>
       <div v-if="geolocationSupported">
@@ -22,24 +22,34 @@
 
       <p v-else class="text--secondary">Geolocation is not supported.</p>
     </div>
-    <v-text-field
-      v-model="address.zipcode"
-      required
-      label="Zipcode"
-      @input="onAddressChange"
-    />
-    <v-text-field
-      v-model="address.street"
-      required
-      label="Street"
-      @input="onAddressChange"
-    />
-    <v-text-field
-      v-model="address.housenumber"
-      required
-      label="Housenumber"
-      @input="onAddressChange"
-    />
+    <v-layout row wrap class="pa-1 pt-0">
+      <v-flex xs12 sm6 md4 class="pa-2">
+        <v-text-field
+          v-model="address.zipcode"
+          required
+          label="Zipcode"
+          type="number"
+          @input="onAddressChange"
+        />
+      </v-flex>
+      <v-flex xs12 sm6 md4 class="pa-2">
+        <v-text-field
+          v-model="address.street"
+          required
+          label="Street"
+          @input="onAddressChange"
+        />
+      </v-flex>
+      <v-flex xs12 md4 class="pa-2">
+        <v-text-field
+          v-model="address.housenumber"
+          required
+          label="Housenumber"
+          type="number"
+          @input="onAddressChange"
+        />
+      </v-flex>
+    </v-layout>
     <p>OSM ID: {{ address.osmId }}</p>
   </v-form>
 </template>
