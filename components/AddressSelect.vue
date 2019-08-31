@@ -1,28 +1,25 @@
 <template>
   <div>
-    <h4 class="title">Select an address as the starting point</h4>
-    <div class="mt-3 mb-2">
-      <v-alert v-if="error" type="error" border="left">
-        An error occurred while fetching geo data:
-        {{ error.message }}
-      </v-alert>
-      <div v-if="geolocationSupported">
-        <v-btn color="primary" @click="fetchAddress">
-          <v-icon left>mdi-crosshairs-gps</v-icon>
-          Use location
-        </v-btn>
-        <v-progress-circular
-          v-show="loading"
-          indeterminate
-          class="ml-4"
-          color="primary"
-          :size="30"
-        />
-      </div>
-
-      <p v-else class="text--secondary">Geolocation is not supported.</p>
+    <h4 class="title mb-3">Select an address as the starting point</h4>
+    <v-alert v-if="error" type="error" border="left">
+      An error occurred while fetching geo data:
+      {{ error.message }}
+    </v-alert>
+    <div v-if="geolocationSupported">
+      <v-btn color="primary" @click="fetchAddress">
+        <v-icon left>mdi-crosshairs-gps</v-icon>
+        Use location
+      </v-btn>
+      <v-progress-circular
+        v-show="loading"
+        indeterminate
+        class="ml-4"
+        color="primary"
+        :size="30"
+      />
     </div>
-    <v-layout row wrap class="pa-1 pt-0">
+    <p v-else class="text--secondary">Geolocation is not supported.</p>
+    <v-layout row wrap class="pa-1 pt-0 mt-2">
       <v-flex xs12 sm6 md3 lg3 class="px-2 py-1">
         <v-text-field
           v-model="address.postcode"
