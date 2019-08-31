@@ -9,7 +9,10 @@
       start the query from or use your current location.
     </p>
     <address-select @id-update="originOsmId = $event" />
-    <target-select :origin-osm-id="originOsmId || undefined" />
+    <target-select
+      :origin-osm-id="originOsmId"
+      @address-data="addresses = $event"
+    />
     <h4 class="title mt-4">Attributions</h4>
     <p>
       The reverse location lookup API is provided by
@@ -41,6 +44,9 @@ export default {
     return {
       //the osm id of the selected address
       originOsmId: null,
+
+      //the queried address data
+      addresses: null,
 
       //the overpass api url to attribute
       overpassApiUrl,

@@ -72,12 +72,11 @@ export default {
     ...makeApiCallHandlers({
       //get the list of addresses to check
       getTargets: async function() {
-        const addresses = await getAddressesInRadius(
-          this.originOsmId,
-          this.radius
+        //calculate and emit the addresses
+        this.$emit(
+          "address-data",
+          await getAddressesInRadius(this.originOsmId, this.radius)
         )
-        console.log(addresses)
-        console.log(JSON.stringify(addresses))
       }
     })
   }
