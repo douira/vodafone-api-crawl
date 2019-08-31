@@ -1,5 +1,5 @@
 <template>
-  <v-form ref="form" v-model="formValid" @submit.prevent>
+  <div>
     <h4 class="title">Select an address as the starting point</h4>
     <div class="mt-3 mb-2">
       <v-alert v-if="error" type="error" border="left">
@@ -51,38 +51,16 @@
       </v-flex>
     </v-layout>
     <p>OSM ID: {{ address.osmId }}</p>
-  </v-form>
+  </div>
 </template>
 
 <script>
 import { getAddress, updateOSMId } from "~/util/geo"
 import debounce from "debounce-promise"
 
-/*
-TODO: see https://wiki.openstreetmap.org/wiki/Overpass_API#Around
-http://overpass-turbo.eu/
-
-node
-  [railway=station]
-  (around:5000,52.5164,13.3777);
-out;
-
-<query type="node">
-  <has-kv k="name" v="Bristol"/>
-</query>
-<around radius="10"/>
-<print/>
-
-Use https://github.com/KoRiGaN/Vue2Leaflet
-Use the saved postman requests for getting info
-*/
-
 export default {
   data() {
     return {
-      //if the input form is displayed as valid
-      formValid: true,
-
       //the address result as received from the api
       address: {
         zipcode: "",
@@ -99,6 +77,12 @@ export default {
 
       //check if geolocation is supported at all
       geolocationSupported: "geolocation" in navigator
+    }
+  },
+  watch: {
+    "address.osmId": function(osmId) {
+      //emit the new value for the parent to use
+      this.$emit("id-update", osmId)
     }
   },
   created() {

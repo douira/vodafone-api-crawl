@@ -80,6 +80,7 @@
   "cSpell.words": [
     "Vuetify",
     "axios",
+    "debounced",
     "errored",
     "generate",
     "ghpages",

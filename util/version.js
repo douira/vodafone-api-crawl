@@ -23,7 +23,7 @@ export default dev => {
   const packageVersion = pkg.version
 
   //the package repo url
-  let packageRepoUrl = "https://github.com/douira/nuxt-spa-template"
+  let packageRepoUrl = "https://github.com/douira/vodafone-api-crawl"
 
   //if given in the package
   if (pkg.repository && pkg.repository.type === "git" && pkg.repository.url) {

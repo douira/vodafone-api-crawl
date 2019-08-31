@@ -8,7 +8,8 @@
       availability of their different services in your area. Enter an address to
       start the query from or use your current location.
     </p>
-    <address-select @input="address = $event" />
+    <address-select @id-update="originOsmId = $event" />
+    <target-select :origin-osm-id="originOsmId || undefined" />
     <h4 class="title">Attributions</h4>
     <p>
       The reverse location lookup API is provided by
@@ -21,14 +22,17 @@
 
 <script>
 import AddressSelect from "~/components/AddressSelect"
+import TargetSelect from "~/components/TargetSelect"
+
 export default {
   components: {
-    AddressSelect
+    AddressSelect,
+    TargetSelect
   },
   data() {
     return {
-      //the address returned by start select
-      address: {}
+      //the osm id of the selected address
+      originOsmId: null
     }
   }
 }

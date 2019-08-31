@@ -1,12 +1,21 @@
-import LRU from "lru-cache"
-import { locationIQ } from "~/util/axiosInstances"
+import { xml2js } from "xml-js"
+import { locationIQ, overpass } from "~/util/axiosInstances"
 
 //generates a cache key for an address object
 const makeAddressCacheKey = addressData =>
   `${addressData.zipcode}_${addressData.street}_${addressData.housenumber}`
 
-//make a new lru cache for caching the location requests
-const locationIQAddressCache = new LRU({ max: 100 })
+//sets cache items
+const setCache = (key, data) => localStorage.setItem(key, JSON.stringify(data))
+
+//gets cache items
+const getCache = key => {
+  //get the item from the cache
+  const data = localStorage.getItem(key)
+
+  //return the data parsed if possible
+  return data ? JSON.parse(data) : undefined
+}
 
 //returns a promise to get the location from the browser
 const currentCoordinates = () =>
@@ -31,7 +40,7 @@ export const getAddress = async () => {
   const cacheKey = `${latitude}_${longitude}`
 
   //if it exists in the cache
-  const cacheResult = locationIQAddressCache.get(cacheKey)
+  const cacheResult = getCache(cacheKey)
   if (cacheResult) {
     //return the cache result instead of fetching it again
     return cacheResult
@@ -67,10 +76,10 @@ export const getAddress = async () => {
   }
 
   //cache the data with the previously generated key
-  locationIQAddressCache.set(cacheKey, addressData)
+  setCache(cacheKey, addressData)
 
   //also cache by address
-  locationIQAddressCache.set(makeAddressCacheKey(addressData), addressData)
+  setCache(makeAddressCacheKey(addressData), addressData)
 
   //return the data
   return addressData
@@ -82,7 +91,7 @@ export const updateOSMId = async address => {
   const cacheKey = makeAddressCacheKey(address)
 
   //use cache data if available
-  const cacheResult = locationIQAddressCache.get(cacheKey)
+  const cacheResult = getCache(cacheKey)
   if (cacheResult) {
     return cacheResult
   }
@@ -105,8 +114,25 @@ export const updateOSMId = async address => {
   address.osmId = osmId
 
   //cache the result
-  locationIQAddressCache.set(cacheKey, address)
+  setCache(cacheKey, address)
 
   //and also return the result
   return address
+}
+
+//queries the overpass api as a promise
+const queryOverpass = async (query, options) => {
+  //query the api
+  const { data } = await overpass.post("/", query)
+
+  //parse the xml
+  return xml2js(data)
+}
+
+//find all addresses within a radius around a given origin
+export const getAddressesInRadius = async (originId, radius) => {
+  return await queryOverpass(`node
+    [railway=station]
+    (around:5000,52.5164,13.3777);
+  out;`)
 }

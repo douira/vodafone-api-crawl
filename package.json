@@ -27,9 +27,8 @@
   "dependencies": {
     "axios": "0.18.1",
     "debounce-promise": "^3.1.2",
-    "lru-cache": "^5.1.1",
     "nuxt": "^2.9.2",
-    "query-overpass": "^1.5.3"
+    "xml-js": "^1.6.11"
   },
   "devDependencies": {
     "@nuxtjs/vuetify": "^1.6.0",
