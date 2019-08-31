@@ -9,6 +9,7 @@
       v-model="sliderValue"
       prepend-icon="mdi-radius-outline"
       :thumb-size="40"
+      @input="dataUpdated = false"
     >
       <template #thumb-label>{{ formattedRadius }}</template>
     </v-slider>
@@ -27,6 +28,17 @@
       color="primary"
       :size="30"
     />
+    <v-alert
+      v-if="dataUpdated && addresses"
+      type="success"
+      class="mt-4"
+      border="left"
+    >
+      Found {{ addresses.length }} address{{
+        addresses.length === 1 ? "" : "es"
+      }}
+      within {{ formattedRadius }} of the origin.
+    </v-alert>
   </div>
 </template>
 
@@ -48,7 +60,13 @@ export default {
       loading: false,
 
       //an error we might have had during loading
-      error: null
+      error: null,
+
+      //if the addresses have been queried for the current radius
+      dataUpdated: false,
+
+      //the current addresses as calculated from the api
+      addresses: null
     }
   },
   computed: {
@@ -67,16 +85,28 @@ export default {
         : `${Math.round(this.radius / 1000)}km`
     }
   },
+  watch: {
+    //on change of the id reset the updated status
+    originOsmId() {
+      this.dataUpdated = false
+    }
+  },
   methods: {
     //construct async api methods
     ...makeApiCallHandlers({
       //get the list of addresses to check
       getTargets: async function() {
-        //calculate and emit the addresses
-        this.$emit(
-          "address-data",
-          await getAddressesInRadius(this.originOsmId, this.radius)
+        //calculate the addresses
+        this.addresses = await getAddressesInRadius(
+          this.originOsmId,
+          this.radius
         )
+
+        //set updated to true as data is present now
+        this.dataUpdated = true
+
+        //emit the data as well
+        this.$emit("address-data", this.addresses)
       }
     })
   }
