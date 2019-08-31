@@ -15,9 +15,13 @@ export const locationIQ = axios.create({
   }
 })
 
+//the baseurl to use for the overpass api
+//"https://overpass-api.de/api/interpreter"
+//"https://overpass.kumi.systems/api/interpreter"
+export const overpassApiUrl = "https://overpass-api.de/api/interpreter"
+
 //overpass api instance
 export const overpass = axios.create({
-  baseURL: "https://overpass.kumi.systems/api/interpreter"
-  //"https://overpass-api.de/api/interpreter"
-  //"https://overpass.kumi.systems/api/interpreter"
+  baseURL: overpassApiUrl,
+  credentials: false
 })

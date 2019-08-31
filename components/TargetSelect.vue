@@ -32,25 +32,7 @@
 
 <script>
 import { getAddressesInRadius } from "~/util/geo"
-
-/*
-TODO: see https://wiki.openstreetmap.org/wiki/Overpass_API#Around
-http://overpass-turbo.eu/
-
-node
-  [railway=station]
-  (around:5000,52.5164,13.3777);
-out;
-
-<query type="node">
-  <has-kv k="name" v="Bristol"/>
-</query>
-<around radius="10"/>
-<print/>
-
-Use https://github.com/KoRiGaN/Vue2Leaflet
-Use the saved postman requests for getting info
-*/
+import { makeApiCallHandlers } from "~/util/util"
 
 export default {
   props: {
@@ -86,22 +68,18 @@ export default {
     }
   },
   methods: {
-    //get the list of addresses to check
-    async getTargets() {
-      //start loading the query
-      this.loading = true
-
-      //catch errors as they occur
-      try {
-        console.log(await getAddressesInRadius(this.originOsmId, this.radius))
-      } catch (error) {
-        //display the errors
-        this.error = error.message
-      } finally {
-        //finished loading now
-        this.loading = false
+    //construct async api methods
+    ...makeApiCallHandlers({
+      //get the list of addresses to check
+      getTargets: async function() {
+        const addresses = await getAddressesInRadius(
+          this.originOsmId,
+          this.radius
+        )
+        console.log(addresses)
+        console.log(JSON.stringify(addresses))
       }
-    }
+    })
   }
 }
 </script>

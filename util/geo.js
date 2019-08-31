@@ -131,11 +131,14 @@ export const updateOSMId = async address => {
 }
 
 //parses an address object from a osm element
-const parseAddressElement = element => ({
-  postcode: element.tags["addr:postcode"],
-  street: element.tags["addr:street"],
-  housenumber: element.tags["addr:housenumber"]
-})
+const parseAddressElement = element =>
+  element.tags
+    ? {
+        postcode: element.tags["addr:postcode"],
+        street: element.tags["addr:street"],
+        housenumber: element.tags["addr:housenumber"]
+      }
+    : null
 
 //updates the address with a changed osm id
 export const updateAddress = async osmId => {
@@ -161,7 +164,7 @@ export const updateAddress = async osmId => {
 
   //choose only the first housenumber given
   address.housenumber = matchRegex(address.housenumber, /\d+/g) || ""
-  console.log(address)
+
   //also add the id
   address.osmId = osmId
 
@@ -204,7 +207,7 @@ const interpolateAddresses = (baseInfo, start, end, type = "all") => {
   } else {
     //a number interpolation, parse numbers
     start = parseInt(start, 10)
-    end = parseInt(start, 10)
+    end = parseInt(end, 10)
 
     //at first the interval is 1 for all
     let interval = 1
@@ -228,7 +231,7 @@ const interpolateAddresses = (baseInfo, start, end, type = "all") => {
       addresses.push({ ...baseInfo, housenumber: i, interpolated: type })
     }
   }
-  console.log("interpolated", addresses, baseInfo, start, end, type)
+
   //return the generated list of addresses
   return addresses
 }
@@ -244,33 +247,8 @@ const addInterpolatedAddresses = (list, ...interpolation) =>
     addAddress(list, address)
   )
 
-//find all addresses within a radius around a given origin
-export const getAddressesInRadius = async (originId, radius) => {
-  //an index of the addresses, used to make unique
-  const addresses = {}
-
-  //do two queries for normal housenumbers and interpolated ones
-  const [addressWays, interpolationElements] = await Promise.all([
-    //query the overpass api for ways with a housenumber in the radius
-    queryOverpass(
-      `[out:json][timeout:25];
-    way(id:${originId});
-    way(around:${radius})["addr:housenumber"];
-    out tags;
-    `
-    ),
-    queryOverpass(
-      `[out:json][timeout:25];
-    way(id:${originId});
-    (
-      node(around:${radius})["addr:housenumber"];
-      way(around:${radius})["addr:interpolation"];
-    );
-    out tags;
-    `
-    )
-  ])
-  console.log(interpolationElements)
+//processes the normal address way
+const processWays = (addresses, addressWays) =>
   //map the address ways to readable objects
   addressWays
     .map(element => {
@@ -334,6 +312,8 @@ export const getAddressesInRadius = async (originId, radius) => {
       }
     })
 
+//processes the interpolation elements
+const processInterpolationElements = (addresses, interpolationElements) => {
   //the ways are filtered out and then processed
   const interpolationWays = []
 
@@ -347,15 +327,93 @@ export const getAddressesInRadius = async (originId, radius) => {
       //add it to the array of ways
       interpolationWays.push(element)
     } else {
-      //put node in object with key
-      interpolationNodes[element.id] = element
+      //parse the address
+      const address = parseAddressElement(element)
+
+      //if it's not bad
+      if (address) {
+        //put node in object with key
+        interpolationNodes[element.id] = address
+      }
     }
   })
 
   //for all collected ways
   interpolationWays.forEach(way => {
-    //
+    //catch errors and stop if they occur, the data might be invalid sometimes
+    try {
+      //get the first and last node of the way
+      const startAddress = interpolationNodes[way.nodes[0]]
+      const endAddress = interpolationNodes[way.nodes[way.nodes.length - 1]]
+
+      //interpolate using the housenumbers of these nodes,
+      //use the start node as the base for the street and postcode
+      addInterpolatedAddresses(
+        addresses,
+        startAddress,
+        startAddress.housenumber,
+        endAddress.housenumber,
+        way.tags["addr:interpolation"]
+      )
+
+      //mark all nodes of this way as processed through interpolation
+      way.nodes.forEach(nodeId => {
+        //if a queried node
+        if (nodeId in interpolationNodes) {
+          //dark as used for interpolation
+          interpolationNodes[nodeId].used = true
+        }
+      })
+    } catch (err) {
+      console.log("interpolation way error", err, way)
+    }
   })
+
+  //for all interpolation nodes, add the unused ones as own addresses
+  for (let nodeId in interpolationNodes) {
+    //get the node address object with the id
+    const address = interpolationNodes[nodeId]
+
+    //if it's not used yet in an interpolation
+    if (!address.used) {
+      //add it as it's own address
+      addAddress(addresses, address)
+    }
+  }
+}
+
+//find all addresses within a radius around a given origin
+export const getAddressesInRadius = async (originId, radius) => {
+  //an index of the addresses, used to make unique
+  const addresses = {}
+
+  //do two queries for normal housenumbers and interpolated ones
+  const [addressWays, interpolationElements] = await Promise.all([
+    //query the overpass api for ways with a housenumber in the radius
+    queryOverpass(
+      `[out:json][timeout:25];
+    way(id:${originId});
+    way(around:${radius})["addr:housenumber"];
+    out tags;
+    `
+    ),
+    queryOverpass(
+      `[out:json][timeout:25];
+    way(id:${originId});
+    (
+      node(around:${radius})["addr:housenumber"];
+      way(around:${radius})["addr:interpolation"];
+    );
+    (._;>;);
+    out body;
+    `
+    )
+  ])
+
+  //process the ways and the interpolation elements,
+  //which will both add to the addresses as they parse the data
+  processWays(addresses, addressWays)
+  processInterpolationElements(addresses, interpolationElements)
 
   //return all unique addresses
   return Object.values(addresses)

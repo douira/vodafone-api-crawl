@@ -13,14 +13,22 @@
     <h4 class="title mt-4">Attributions</h4>
     <p>
       The reverse location lookup API is provided by
-      <a href="https://locationiq.com" targer="_blank">
-        LocationIQ.
-      </a>
+      <a href="https://locationiq.com" targer="_blank">LocationIQ</a>
+      <br />
+      The address query api through the Overpass API is provided by
+      <a :href="overpassApiUrl" targer="_blank">{{ overpassApiUrl }}</a>
+      <br />
+      Map data is provided by
+      <a href="https://www.openstreetmap.org" targer="_blank">OpenStreetMap</a>
+      <br />
+      GitHub repository for this project:
+      <a :href="packageRepoUrl" targer="_blank">{{ packageRepoUrl }}</a>
     </p>
   </div>
 </template>
 
 <script>
+import { overpassApiUrl } from "~/util/axiosInstances"
 import AddressSelect from "~/components/AddressSelect"
 import TargetSelect from "~/components/TargetSelect"
 
@@ -32,7 +40,13 @@ export default {
   data() {
     return {
       //the osm id of the selected address
-      originOsmId: null
+      originOsmId: null,
+
+      //the overpass api url to attribute
+      overpassApiUrl,
+
+      //the repo information to display in the attributions
+      packageRepoUrl: process.env.buildVersion.packageRepoUrl
     }
   }
 }

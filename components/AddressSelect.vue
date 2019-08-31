@@ -60,7 +60,6 @@
 import { getLocationAddress, updateOSMId, updateAddress } from "~/util/geo"
 import { makeApiCallHandlers } from "~/util/util"
 import debounce from "debounce-promise"
-import { async } from "q"
 
 export default {
   data() {

@@ -15,7 +15,7 @@ export default {
         error: colors.red,
         success: colors.green
       },
-      dark: {
+      light: {
         primary: colors.blue,
         secondary: colors.lightBlue,
         accent: colors.teal,
