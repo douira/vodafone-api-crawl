@@ -60,7 +60,7 @@ export default {
   data() {
     return {
       //the current value of the slider
-      sliderValue: 50,
+      sliderValue: 5,
 
       //if we are currently querying
       loading: false,
@@ -72,13 +72,13 @@ export default {
   computed: {
     //calculates the real radius in meters being used
     radius() {
-      return Math.round(this.sliderValue ** 3 / 10)
+      return Math.round(this.sliderValue ** 1.5 * 10)
     },
 
     //displays the radius formatted as text
     formattedRadius() {
       //choose unit depending on value range
-      return this.radius < 100
+      return this.radius < 1000
         ? `${this.radius}m`
         : this.radius < 10000
         ? `${(this.radius / 1000).toFixed(1)}km`
@@ -88,7 +88,19 @@ export default {
   methods: {
     //get the list of addresses to check
     async getTargets() {
-      console.log(await getAddressesInRadius(this.originOsmId, this.radius))
+      //start loading the query
+      this.loading = true
+
+      //catch errors as they occur
+      try {
+        console.log(await getAddressesInRadius(this.originOsmId, this.radius))
+      } catch (error) {
+        //display the errors
+        this.error = error.message
+      } finally {
+        //finished loading now
+        this.loading = false
+      }
     }
   }
 }

@@ -10,7 +10,7 @@
     </p>
     <address-select @id-update="originOsmId = $event" />
     <target-select :origin-osm-id="originOsmId || undefined" />
-    <h4 class="title">Attributions</h4>
+    <h4 class="title mt-4">Attributions</h4>
     <p>
       The reverse location lookup API is provided by
       <a href="https://locationiq.com" targer="_blank">

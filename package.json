@@ -27,8 +27,7 @@
   "dependencies": {
     "axios": "0.18.1",
     "debounce-promise": "^3.1.2",
-    "nuxt": "^2.9.2",
-    "xml-js": "^1.6.11"
+    "nuxt": "^2.9.2"
   },
   "devDependencies": {
     "@nuxtjs/vuetify": "^1.6.0",

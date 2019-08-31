@@ -23,47 +23,51 @@
       <p v-else class="text--secondary">Geolocation is not supported.</p>
     </div>
     <v-layout row wrap class="pa-1 pt-0">
-      <v-flex xs12 sm4 class="pa-2">
+      <v-flex xs12 sm6 md3 lg3 class="px-2 py-1">
         <v-text-field
-          v-model="address.zipcode"
-          required
-          label="Zipcode"
-          type="number"
+          v-model="address.postcode"
+          label="Postcode"
           @input="onAddressChange"
         />
       </v-flex>
-      <v-flex xs12 sm5 md4 class="pa-2">
+      <v-flex xs12 sm6 md4 lg3 class="px-2 py-1">
         <v-text-field
           v-model="address.street"
-          required
           label="Street"
           @input="onAddressChange"
         />
       </v-flex>
-      <v-flex xs12 sm3 md4 class="pa-2">
+      <v-flex xs12 sm6 md2 lg3 class="px-2 py-1">
         <v-text-field
           v-model="address.housenumber"
-          required
           label="Housenumber"
-          type="number"
           @input="onAddressChange"
         />
       </v-flex>
+      <v-flex xs12 sm6 md3 lg3 class="px-2 py-1">
+        <v-text-field
+          v-model="address.osmId"
+          label="OSM Way ID"
+          type="number"
+          @input="onIdChange"
+        />
+      </v-flex>
     </v-layout>
-    <p>OSM ID: {{ address.osmId }}</p>
   </div>
 </template>
 
 <script>
-import { getAddress, updateOSMId } from "~/util/geo"
+import { getLocationAddress, updateOSMId, updateAddress } from "~/util/geo"
+import { makeApiCallHandlers } from "~/util/util"
 import debounce from "debounce-promise"
+import { async } from "q"
 
 export default {
   data() {
     return {
       //the address result as received from the api
       address: {
-        zipcode: "",
+        postcode: "",
         street: "",
         housenumber: "",
         osmId: null
@@ -88,49 +92,26 @@ export default {
   created() {
     //create a debounced version of the address update
     this.onAddressChange = debounce(() => this.changeAddress(), 1000)
+    this.onIdChange = debounce(() => this.changeId(), 1000)
   },
   methods: {
-    //fetch a new osm id
-    async changeAddress() {
-      //start loading indicator
-      this.loading = true
+    //attach handlers for async api calls
+    ...makeApiCallHandlers({
+      //fetch a new osm id for this address
+      changeAddress: async function() {
+        this.address = await updateOSMId(this.address)
+      },
 
-      //catch any errors that occur
-      try {
-        //fetch a new osm id for this address
-        this.address = Object.assign({}, await updateOSMId(this.address))
+      //update the address from a changed osm id
+      changeId: async function() {
+        this.address = await updateAddress(this.address.osmId)
+      },
 
-        //reset error if not thrown
-        this.error = null
-      } catch (error) {
-        //set error state with message
-        this.error = error
-      } finally {
-        //finished loading one way or another
-        this.loading = false
+      //get the address with the current browser location from the api
+      fetchAddress: async function() {
+        this.address = await getLocationAddress()
       }
-    },
-
-    //gets the address for the current browser location from an api
-    async fetchAddress() {
-      //set to start loading
-      this.loading = true
-
-      //catch any errors that arise from the api calls
-      try {
-        //get the address with the current browser location from the api
-        this.address = Object.assign({}, await getAddress())
-
-        //reset error if not thrown
-        this.error = null
-      } catch (error) {
-        //set error state with message
-        this.error = error
-      } finally {
-        //finished loading the address one way or another
-        this.loading = false
-      }
-    }
+    })
   }
 }
 </script>
