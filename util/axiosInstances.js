@@ -25,3 +25,6 @@ export const overpass = axios.create({
   baseURL: overpassApiUrl,
   credentials: false
 })
+
+//api for querying the availability api
+export const serviceApiInstance = axios.create({})

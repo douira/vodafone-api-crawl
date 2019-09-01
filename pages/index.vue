@@ -13,6 +13,7 @@
       :origin-osm-id="originOsmId"
       @address-data="addresses = $event"
     />
+    <query-api :addresses="addresses" />
     <h4 class="title mt-4">Attributions</h4>
     <p>
       The reverse location lookup API is provided by
@@ -34,11 +35,13 @@
 import { overpassApiUrl } from "~/util/axiosInstances"
 import AddressSelect from "~/components/AddressSelect"
 import TargetSelect from "~/components/TargetSelect"
+import QueryApi from "~/components/QueryApi"
 
 export default {
   components: {
     AddressSelect,
-    TargetSelect
+    TargetSelect,
+    QueryApi
   },
   data() {
     return {

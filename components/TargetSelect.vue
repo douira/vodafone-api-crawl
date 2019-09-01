@@ -18,7 +18,7 @@
       All addresses around the selected origin within a
       {{ formattedRadius }} radius will be queried.
     </p>
-    <v-btn color="primary" :disabled="originOsmId === null" @click="getTargets">
+    <v-btn color="primary" :disabled="!originOsmId" @click="getTargets">
       <v-icon left>mdi-map-marker-radius</v-icon>
       Start query
     </v-btn>

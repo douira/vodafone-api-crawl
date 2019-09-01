@@ -27,6 +27,7 @@
   "dependencies": {
     "axios": "0.18.1",
     "debounce-promise": "^3.1.2",
+    "es6-promise-pool": "^2.5.0",
     "nuxt": "^2.9.2"
   },
   "devDependencies": {

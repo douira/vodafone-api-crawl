@@ -20,6 +20,7 @@ export const makeApiCallHandlers = promiseGenerators => {
       } catch (error) {
         //set error state with message
         this.error = error
+        console.error(error)
       } finally {
         //finished loading one way or another
         this.loading = false
