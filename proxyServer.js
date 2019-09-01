@@ -1,93 +1,47 @@
-//adapted from from https://github.com/shalvah/simple-cors-escape/blob/e7e6dc0fe31d79670febfbd93ab8b5f9c7b97e00/index.js
-/*const request = require("request")
-const http = require("http")
+const express = require("express")
+const request = require("request")
+
+//start message
+console.log("CORS-allow proxy server starting...")
+
+//get the port and host
 const port = process.env.PORT || 3001
+const host = process.env.HOST || "localhost"
 
-let getPostData = request => {
-  return new Promise(resolve => {
-    let post = ""
-    if (request.method === "POST") {
-      let body = ""
-      request.on("data", data => {
-        body += data
-      })
-
-      request.on("end", () => {
-        post = JSON.parse(body)
-        resolve(post)
-      })
-    }
-  })
-}
-
-http
-  .createServer(function(req, res) {
-    console.log("Server running on port " + port)
-    console.log(`Request to: ${req.url}`)
-    getPostData(req).then(body => {
-      console.log(body)
-
-      request(
-        {
-          uri: req.url,
-          headers: req.headers,
-          method: req.method
-        },
-        (proxyErr, proxyRes, proxyBody) => {
-          if (proxyErr) {
-            console.log(proxyErr)
-            res.statusCode = 500
-            res.write(proxyErr)
-          } else {
-            res.writeHead(proxyRes.statusCode, proxyRes.headers)
-            res.write(proxyBody)
-          }
-          res.end()
-        }
+//make an express instance
+express()
+  //on all requests set all the CORS headers
+  .use((req, res, next) => {
+    if (req.headers["access-control-request-method"]) {
+      res.set(
+        "access-control-allow-methods",
+        req.headers["access-control-request-method"]
       )
-    })
-  })
-  .listen(port)
-*/
-const http = require("http")
-const httpProxy = require("http-proxy")
-const port = process.env.PORT || 3001
-const proxy = httpProxy
-  .createProxyServer()
-  .on("proxyRes", (proxyRes, req, res) => {
-    res.setHeader("Access-Control-Allow-Origin", req.headers.origin)
-    res.setHeader("Access-Control-Allow-Credentials", true)
-  })
-
-http
-  .createServer(function(req, res) {
-    console.log(req.headers)
-    if (req.method === "OPTIONS") {
-      if (req.headers["access-control-request-method"]) {
-        res.setHeader(
-          "access-control-allow-methods",
-          req.headers["access-control-request-method"]
-        )
-      }
-      if (req.headers["access-control-request-headers"]) {
-        res.setHeader(
-          "access-control-allow-headers",
-          req.headers["access-control-request-headers"]
-        )
-      }
-      if (req.headers.origin) {
-        res.setHeader("access-control-allow-origin", req.headers.origin)
-        res.setHeader("access-control-allow-credentials", "true")
-      }
-      res.writeHead(200)
-      res.end()
-      return
     }
-    proxy.web(req, res, {
-      target: req.url.slice(1),
-      changeOrigin: true
-    })
+    if (req.headers["access-control-request-headers"]) {
+      res.set(
+        "access-control-allow-headers",
+        req.headers["access-control-request-headers"]
+      )
+    }
+    if (req.headers.origin) {
+      res.set("access-control-allow-origin", req.headers.origin)
+      res.set("access-control-allow-credentials", "true")
+    }
+    next()
   })
-  .listen(port)
 
-console.log(`CORS-allow proxy server listening on port ${port}`)
+  //on options requests just satisfy the browser
+  .options("*", (req, res) => res.status(200).end())
+
+  //on all remaining requests, simply pipe it to the target
+  .all("/*", (req, res) =>
+    //the target is the remaining part without the slash
+    req.pipe(request(req.url.slice(1))).pipe(res)
+  )
+
+  //start the server with given port and host
+  .listen(port, host, () =>
+    //log a listening message
+    console.log(`CORS-allow proxy server listening on port ${port}`)
+  )
