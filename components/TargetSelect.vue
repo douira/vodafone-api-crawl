@@ -18,7 +18,7 @@
       All addresses around the selected origin within a
       {{ formattedRadius }} radius will be queried.
     </p>
-    <v-btn color="primary" :disabled="!originOsmId" @click="getTargets">
+    <v-btn color="success" :disabled="!originOsmId" @click="getTargets">
       <v-icon left>mdi-map-marker-radius</v-icon>
       Start query
     </v-btn>
@@ -55,7 +55,7 @@ export default {
   data() {
     return {
       //the current value of the slider
-      sliderValue: 5,
+      sliderValue: 40,
 
       //if we are currently querying
       loading: false,

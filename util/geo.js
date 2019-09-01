@@ -7,11 +7,35 @@ const makeAddressCacheKey = (addressData, seperator = "_") =>
     seperator
   )
 
+//the maximum key and data sized allowed in the cache,
+//calls with larger data or keys will be ignored
+const maxCacheKeySize = 500
+const maxCacheDataSize = 20000
+
 //sets cache items
-const setCache = (key, data) => localStorage.setItem(key, JSON.stringify(data))
+const setCache = (key, data) => {
+  //stringify the data for setting in the cache
+  data = JSON.stringify(data)
+
+  //if it exceeds the limits
+  if (
+    (key && key.length > maxCacheKeySize) ||
+    (data && data.length > maxCacheDataSize)
+  ) {
+    return
+  }
+
+  //normally set in the cache
+  localStorage.setItem(key, data)
+}
 
 //gets cache items
 const getCache = key => {
+  //stop if the key exceeds the max length
+  if (key && key.length > maxCacheKeySize) {
+    return
+  }
+
   //get the item from the cache
   const data = localStorage.getItem(key)
 
@@ -89,11 +113,28 @@ export const getLocationAddress = async () => {
 
 //queries the overpass api as a promise
 const queryOverpass = async query => {
+  //minify the query, replace with either of the capture groups,
+  //only one will match at once
+  query = query.replace(/(;)\s+|( ) +|\n/gm, "$1$2")
+
+  //try to get it from the cache
+  const cacheResult = getCache(query)
+
+  //if there is something in the cache, return that instead
+  if (cacheResult) {
+    return cacheResult
+  }
+
   //query the api and extract the elements
-  const { data } = await overpass.post("/", query)
+  const {
+    data: { elements }
+  } = await overpass.post("/", query)
+
+  //cache the result
+  setCache(query, elements)
 
   //return the elements of the query
-  return data.elements
+  return elements
 }
 
 //updates the osm id with the given address

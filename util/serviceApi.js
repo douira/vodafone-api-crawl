@@ -6,5 +6,5 @@ export const getAddressStatus = async address => {
   if (!time) {
     throw "invalid time from housenumber"
   }
-  await new Promise(resolve => setTimeout(() => resolve, time * 10))
+  await new Promise(resolve => setTimeout(resolve, time * 10))
 }

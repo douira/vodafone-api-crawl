@@ -11,9 +11,9 @@
     <address-select @id-update="originOsmId = $event" />
     <target-select
       :origin-osm-id="originOsmId"
-      @address-data="addresses = $event"
+      @address-data="addressesUpdated"
     />
-    <query-api :addresses="addresses" />
+    <query-api ref="queryApi" :addresses="addresses" />
     <h4 class="title mt-4">Attributions</h4>
     <p>
       The reverse location lookup API is provided by
@@ -56,6 +56,16 @@ export default {
 
       //the repo information to display in the attributions
       packageRepoUrl: process.env.buildVersion.packageRepoUrl
+    }
+  },
+  methods: {
+    //on address update
+    addressesUpdated($event) {
+      //copy the data
+      this.addresses = $event
+
+      //notify the service query component
+      this.$refs.queryApi.addressesUpdated()
     }
   }
 }
