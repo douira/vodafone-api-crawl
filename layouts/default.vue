@@ -6,13 +6,7 @@
       </v-container>
     </v-content>
     <v-footer absolute height="auto" class="px-2">
-      <v-layout
-        no-gutters
-        justify-space-between
-        align-center
-        wrap
-        class="body-2"
-      >
+      <v-row no-gutters justify="space-between" class="body-2">
         <span
           >&copy;
           <a :href="buildVersion.packageRepoUrl" target="_blank">
@@ -26,7 +20,7 @@
         >
           {{ buildVersion.formatted }}
         </a>
-      </v-layout>
+      </v-row>
     </v-footer>
   </v-app>
 </template>

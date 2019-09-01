@@ -19,37 +19,37 @@
       />
     </div>
     <p v-else class="text--secondary">Geolocation is not supported.</p>
-    <v-layout row wrap class="pa-1 pt-0 mt-2">
-      <v-flex xs12 sm6 md3 lg3 class="px-2 py-1">
+    <v-row class="mt-2">
+      <v-col cols="12" sm="6" md="3">
         <v-text-field
           v-model="address.postcode"
           label="Postcode"
           @input="onAddressChange"
         />
-      </v-flex>
-      <v-flex xs12 sm6 md4 lg3 class="px-2 py-1">
+      </v-col>
+      <v-col cols="12" sm="6" md="4" lg="3">
         <v-text-field
           v-model="address.street"
           label="Street"
           @input="onAddressChange"
         />
-      </v-flex>
-      <v-flex xs12 sm6 md2 lg3 class="px-2 py-1">
+      </v-col>
+      <v-col cols="12" sm="6" md="2" lg="3">
         <v-text-field
           v-model="address.housenumber"
           label="Housenumber"
           @input="onAddressChange"
         />
-      </v-flex>
-      <v-flex xs12 sm6 md3 lg3 class="px-2 py-1">
+      </v-col>
+      <v-col cols="12" sm="6" md="3">
         <v-text-field
           v-model="address.osmId"
           label="OSM Way ID"
           type="number"
           @input="onIdChange"
         />
-      </v-flex>
-    </v-layout>
+      </v-col>
+    </v-row>
   </div>
 </template>
 
