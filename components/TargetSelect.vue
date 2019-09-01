@@ -8,6 +8,7 @@
     <v-slider
       v-model="sliderValue"
       prepend-icon="mdi-radius-outline"
+      :max="1000"
       :thumb-size="40"
       @input="dataUpdated = false"
     >
@@ -72,7 +73,7 @@ export default {
   computed: {
     //calculates the real radius in meters being used
     radius() {
-      return Math.round(this.sliderValue ** 1.5 * 10)
+      return Math.round(this.sliderValue ** 2 / 10)
     },
 
     //displays the radius formatted as text
