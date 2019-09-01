@@ -13,16 +13,17 @@
     "url": "https://github.com/douira/vodafone-api-crawl.git"
   },
   "scripts": {
-    "dev": "nuxt",
+    "dev": "npm run proxy-pm2 && nuxt",
     "build": "nuxt build",
-    "start": "nuxt start",
+    "start": "npm run proxy && nuxt start",
     "generate": "nuxt generate",
     "generate-ghpages": "DEPLOY_ENV=GH_PAGES nuxt generate",
     "deploy-ghpages": "push-dir --dir=dist --branch=gh-pages --cleanup",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
     "format-all": "eslint --fix --ext .js,.vue --ignore-path .gitignore .",
     "precommit": "npm run format-all",
-    "analyze": "nuxt build --analyze"
+    "analyze": "nuxt build --analyze",
+    "proxy-pm2": "pm2 start proxyServer.js -l /dev/null"
   },
   "dependencies": {
     "axios": "0.18.1",
