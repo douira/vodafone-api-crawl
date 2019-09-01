@@ -136,7 +136,7 @@ export default {
       },
 
       //how many requests will be sent out concurrently
-      concurrency: 5,
+      concurrency: 3,
 
       //when the processing started and stopped
       startTime: null,

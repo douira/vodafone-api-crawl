@@ -22,9 +22,38 @@ export const overpassApiUrl = "https://overpass-api.de/api/interpreter"
 
 //overpass api instance
 export const overpass = axios.create({
-  baseURL: overpassApiUrl,
-  credentials: false
+  baseURL: overpassApiUrl
 })
 
+//basic settings for service api
+const serviceApiSettings = {
+  //use locally hosted cors proxy
+  baseURL: "http://localhost:3001/https://zuhauseplus.vodafone.de/",
+
+  //allow cookies
+  withCredentials: true
+}
+
 //api for querying the availability api
-export const serviceApiInstance = axios.create({})
+export const serviceApiInstance = axios.create({
+  //set the api key
+  headers: {
+    Authorization:
+      "Basic V1dXOnNlZV8vZ2ltbGkvaW5mb19mb3JfQVBJX2FjY2Vzc19kZXRhaWxz",
+    Accept: "application/vnd.kabeldeutschland.gimli-v4+json"
+  },
+
+  //extend default options
+  ...serviceApiSettings
+})
+
+//api for querying the DSL availability api
+export const serviceApiDSLInstance = axios.create({
+  //set the api key differently
+  headers: {
+    Authorization: "QgtHm7esuKN8Na0MWWpodE0lAqKh9cTb"
+  },
+
+  //extend default options
+  ...serviceApiSettings
+})
