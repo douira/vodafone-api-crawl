@@ -14,9 +14,6 @@ $ npm run dev
 $ npm run build
 $ npm start
 
-# generate static project for display on github pages
-$ npm run generate-ghpages
-
 # start the local proxy server
 $ pm2 start proxyServer.js -l /dev/null
 

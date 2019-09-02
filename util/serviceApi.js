@@ -1,52 +1,25 @@
-import {
-  serviceApiInstance,
-  serviceApiDSLInstance
-} from "~/util/axiosInstances"
-
-//placeholder that uses the housenumber to wait a while
-/*
-const time = parseInt(address.housenumber, 10)
-  if (!time) {
-    throw "invalid time from housenumber"
-  }
-  await new Promise(resolve => setTimeout(resolve, time * 10))
-*/
+import { ownServer } from "~/util/axiosInstances"
+import { makeAddressCacheKey, getCache, setCache } from "~/util/util"
 
 //queries the service api for one address
 export const getAddressStatus = async address => {
-  //get address id for given address from api
-  const {
-    data: {
-      data: { addresses }
-    }
-  } = await serviceApiInstance.post("gimli/customer/addressvalidation", {
-    //the address data
-    zipcode: address.postcode,
-    street: address.street,
-    housenumber: address.housenumber
-  })
+  //make a cache key for this address request
+  const cacheKey = `q_${makeAddressCacheKey(address)}`
 
-  //attach the api id of the first gotten address
-  address.apiId = addresses[0].addressId
+  //get a cache result
+  const cacheResult = getCache(cacheKey)
 
-  //set the address id in the current api state
-  const {
-    data: {
-      data: { valid }
-    }
-  } = await serviceApiInstance.post("gimli/customer/addressvalidation", {
-    //pass the gotten address id
-    addressId: address.apiId
-  })
-
-  //throw to abort if not valid
-  if (!valid) {
-    throw Error("api address id not accepted by api")
+  //return that instead if available
+  if (cacheResult) {
+    return cacheResult
   }
 
-  console.log(addresses)
-  //set address id in the api
-  //get DSL products for address
-  //get cable marketing data for address
-  //get cable products for address
+  //make the request with the address
+  const { data } = await ownServer.post("/", address)
+
+  //cache the result
+  setCache(cacheKey, data)
+
+  //return the calculated result
+  return data
 }

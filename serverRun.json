@@ -1,0 +1,6 @@
+{
+  "name": "api-server",
+  "script": "server.js",
+  "error_file": "log/server-error.log",
+  "out_file": "log/server.log"
+}

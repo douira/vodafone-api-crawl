@@ -101,5 +101,9 @@
     "truthy",
     "typeof",
     "vuex"
+  ],
+  "cSpell.ignoreWords": [
+    "datentransferrate",
+    "vermarktbare"
   ]
 }

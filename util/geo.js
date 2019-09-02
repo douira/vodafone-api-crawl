@@ -1,47 +1,10 @@
 import { locationIQ, overpass } from "~/util/axiosInstances"
-import { matchRegex } from "~/util/util"
-
-//generates a cache key for an address object
-const makeAddressCacheKey = (addressData, seperator = "_") =>
-  [addressData.postcode, addressData.street, addressData.housenumber].join(
-    seperator
-  )
-
-//the maximum key and data sized allowed in the cache,
-//calls with larger data or keys will be ignored
-const maxCacheKeySize = 500
-const maxCacheDataSize = 20000
-
-//sets cache items
-const setCache = (key, data) => {
-  //stringify the data for setting in the cache
-  data = JSON.stringify(data)
-
-  //if it exceeds the limits
-  if (
-    (key && key.length > maxCacheKeySize) ||
-    (data && data.length > maxCacheDataSize)
-  ) {
-    return
-  }
-
-  //normally set in the cache
-  localStorage.setItem(key, data)
-}
-
-//gets cache items
-const getCache = key => {
-  //stop if the key exceeds the max length
-  if (key && key.length > maxCacheKeySize) {
-    return
-  }
-
-  //get the item from the cache
-  const data = localStorage.getItem(key)
-
-  //return the data parsed if possible
-  return data ? JSON.parse(data) : undefined
-}
+import {
+  matchRegex,
+  makeAddressCacheKey,
+  getCache,
+  setCache
+} from "~/util/util"
 
 //returns a promise to get the location from the browser
 const currentCoordinates = () =>
