@@ -1,12 +1,12 @@
-const express = require("express")
 const axios = require("axios")
+const io = require("socket.io")()
+const PromisePool = require("es6-promise-pool")
 
 //start message
 console.log("api requests server starting...")
 
 //get the port and host
 const port = process.env.PORT || 3001
-const host = process.env.HOST || "localhost"
 
 //the list of cable products we're interested in
 const cableProductsQuery = [
@@ -204,70 +204,45 @@ const queryAddress = async address => {
   }
 }
 
-//make an express instance
-express()
-  //on all requests set all the CORS headers
-  .use((req, res, next) => {
-    if (req.headers["access-control-request-method"]) {
-      res.set(
-        "access-control-allow-methods",
-        req.headers["access-control-request-method"]
-      )
-    }
-    if (req.headers["access-control-request-headers"]) {
-      res.set(
-        "access-control-allow-headers",
-        req.headers["access-control-request-headers"]
-      )
-    }
-    if (req.headers.origin) {
-      res.set("access-control-allow-origin", req.headers.origin)
-      res.set("access-control-allow-credentials", "true")
-    }
-    next()
-  })
+//async function that processes one address
+const processAddress = async (socket, address, index) => {
+  //send the result of the address query back to the socket
+  try {
+    //wait for the query to finish and send the result
+    socket.emit("response", { index, data: await queryAddress(address) })
+  } catch (error) {
+    //send an error instead
+    socket.emit("response", { index, error })
+  }
+}
 
-  //on options requests just satisfy the browser
-  .options("*", (req, res) => res.status(200).end())
+//how many connections are made at once
+const concurrency = 30
 
-  //enable body parsing
-  .use(express.json())
+//on ws connection
+io.on("connection", socket => {
+  //on sending a job
+  socket.on("addresses", addresses =>
+    new PromisePool(() => {
+      //the next address to process
+      let next = 0
 
-  //on all post requests
-  .post("*", async (req, res, next) => {
-    //handle request errors
-    try {
-      //wait on the requests to finish and return the data
-      res.json(await queryAddress(req.body))
-    } catch (err) {
-      //handle error in express
-      next(err)
-    }
-  })
+      //skip this one if it's a placeholder
+      while (addresses.length && next === 0) {
+        //get the next one
+        next = addresses.pop()
+      }
 
-  //error handler
-  //eslint-disable-next-line no-unused-vars
-  .use(function(err, req, res, next) {
-    //make the error response
-    const errorResponse = {
-      err: err.stack
-    }
+      //stop if there is none
+      if (!next) {
+        return null
+      }
 
-    //attach body and headers if response present
-    if (err.response) {
-      errorResponse.data = err.response.data
-      errorResponse.headers = err.response.headers
-    }
-
-    //log the error
-    console.error(errorResponse)
-
-    //send the error as the content of the error response
-    res.status(500).json(errorResponse)
-  })
-
-  //start the server with given port and host
-  .listen(port, host, () =>
-    //log a listening message
-    console.log(`api requests server listening on port ${port}`)
+      //return the promise generated from processing the address
+      return processAddress(socket, next, addresses.length)
+    }, concurrency).start()
   )
+})
+
+//start listening
+io.listen(port)

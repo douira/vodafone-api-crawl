@@ -89,8 +89,8 @@
 
 <script>
 import humanizeDuration from "humanize-duration"
-import PromisePool from "es6-promise-pool"
-import { getAddressStatus } from "~/util/serviceApi"
+import io from "socket.io-client"
+import { makeAddressCacheKey, getCache, setCache } from "~/util/util"
 
 export default {
   props: {
@@ -135,9 +135,6 @@ export default {
         }
       },
 
-      //how many requests will be sent out concurrently
-      concurrency: 6,
-
       //when the processing started and stopped
       startTime: null,
       stopTime: null,
@@ -156,8 +153,8 @@ export default {
     },
 
     //calculate the progress percentage of all non open addresses
-    totalNonOpenFraction() {
-      return 1 - this.progress.open / this.progress.total
+    unfinishedFraction() {
+      return 1 - this.finishedFraction
     },
 
     //the elapsed time
@@ -185,13 +182,62 @@ export default {
   created() {
     //start an interval that changes the internal timer
     this.intervalToken = setInterval(() => (this.time = Date.now()), 1000)
+
+    //connect to the server
+    this.socket = io("http://localhost:3001")
+
+    //register handlers for data coming back
+    this.socket.on("response", response => {
+      //get the address with the index from the response
+      const address = this.addresses[response.index]
+
+      //count as not pending
+      this.progress.pending--
+
+      //if response is an error
+      if (response.error) {
+        //log error and count as errored
+        console.log("service query error", response.error, address)
+        this.progress.errored++
+
+        //set error state
+        address.queryState = "errored"
+      } else {
+        //do the query and attach the result to the address it belongs to
+        address.queryResult = response.data
+
+        //set the data in the cache
+        setCache(`q_${makeAddressCacheKey(address)}`, address)
+
+        //mark address as completed
+        address.queryState = "completed"
+        console.log(address.queryResult)
+
+        //and count as completed
+        this.progress.completed++
+      }
+
+      //stop loading if done
+      this.checkFinishLoading()
+    })
   },
   beforeDestroy() {
     //get rid of the timer again
     clearInterval(this.intervalToken)
   },
   methods: {
-    //get
+    //finishes the loading
+    checkFinishLoading() {
+      //if nothing left to do
+      if (!this.progress.pending) {
+        //disable loading display
+        this.loading = false
+
+        //record end time
+        this.stopTime = this.time
+      }
+    },
+
     //formats a duration with a default format
     formatDuration(duration, options = {}) {
       //use humanize duration to format the time and extend default options
@@ -216,42 +262,9 @@ export default {
     resetProgress(total) {
       this.progress = {
         total: total,
-        open: total,
-        pending: 0,
+        pending: total,
         completed: 0,
         errored: 0
-      }
-    },
-
-    //processes one address with the service api
-    async processAddress(address) {
-      //count as pending
-      this.progress.open--
-      this.progress.pending++
-
-      //mark address as pending
-      address.queryState = "pending"
-
-      //catch query errors
-      try {
-        //do the query and attach the result to the address it belongs to
-        address.queryResult = await getAddressStatus(address)
-
-        //mark address as completed
-        address.queryState = "completed"
-        console.log(address.queryResult)
-        //and count as completed
-        this.progress.completed++
-      } catch (error) {
-        //log error and count as errored
-        console.log("service query error", error, address)
-        this.progress.errored++
-
-        //set error state
-        address.queryState = "errored"
-      } finally {
-        //count as not pending
-        this.progress.pending--
       }
     },
 
@@ -263,53 +276,45 @@ export default {
       //save the start timer of measuring elapsed time
       this.startTime = this.time
 
-      //slice the addresses to save the state in case in changes in the mean time
-      const workingAddresses = this.addresses.slice()
-
       //reset the progress
-      this.resetProgress(workingAddresses.length)
+      this.resetProgress(this.addresses.length)
 
-      //mark all addresses as open
-      workingAddresses.forEach(address => (address.queryState = "open"))
+      //check if we have cached data for some addresses
+      this.addresses.forEach(address => {
+        //make a cache key for this address
+        const cacheKey = `q_${makeAddressCacheKey(address)}`
 
-      //the next address index to process
-      let nextIndex = 0
+        //get a cache result
+        const cacheResult = getCache(cacheKey)
 
-      //catch any errors that occur
-      try {
-        /*make a promise pool with a promise generator,
-        the generator can't be a async function as it never returns null
-        but a promise that resolves with the value null*/
-        const pool = new PromisePool(() => {
-          //get the next address to process
-          const address = workingAddresses[nextIndex++]
+        //if available, use cache result as query result
+        if (cacheResult) {
+          address.queryState = "completed"
+          address.queryResult = cacheResult
+          this.progress.pending--
+          this.progress.completed++
+        } else {
+          //address still needs to be processed
+          address.queryState = "open"
+        }
+      })
 
-          //if there is no address, we're finished
-          if (!address) {
-            //return null to signal being finished
-            return null
-          }
+      //stop loading if done
+      this.checkFinishLoading()
 
-          //return the promise generated by the address processor
-          return this.processAddress(address)
-        }, this.concurrency)
-
-        //wait for the pool to complete processing
-        await pool.start()
-
-        //reset error if not thrown
-        this.error = null
-      } catch (error) {
-        //set error state with message
-        this.error = error
-        console.error(error)
-      } finally {
-        //finished loading one way or another
-        this.loading = false
-
-        //save the stop time
-        this.stopTime = this.time
+      //stop if nothing left to do
+      if (!this.loading) {
+        return
       }
+
+      //send the addresses to the server for processing,
+      //fill the completed addresses with placeholdres
+      this.socket.emit(
+        "addresses",
+        this.addresses.map(address =>
+          address.queryState === "completed" ? 0 : address
+        )
+      )
     }
   }
 }

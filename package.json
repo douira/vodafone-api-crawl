@@ -31,7 +31,9 @@
     "es6-promise-pool": "^2.5.0",
     "express": "^4.17.1",
     "humanize-duration": "^3.20.1",
-    "nuxt": "^2.9.2"
+    "nuxt": "^2.9.2",
+    "socket.io": "^2.2.0",
+    "socket.io-client": "^2.2.0"
   },
   "devDependencies": {
     "@nuxtjs/vuetify": "^1.6.0",
