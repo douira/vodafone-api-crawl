@@ -207,11 +207,11 @@ export default {
         address.queryResult = response.data
 
         //set the data in the cache
-        setCache(`q_${makeAddressCacheKey(address)}`, address)
+        setCache(`q_${makeAddressCacheKey(address)}`, address.queryResult)
 
         //mark address as completed
         address.queryState = "completed"
-        console.log(address.queryResult)
+        console.log(address)
 
         //and count as completed
         this.progress.completed++

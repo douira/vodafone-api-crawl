@@ -212,7 +212,10 @@ const processAddress = async (socket, address, index) => {
     socket.emit("response", { index, data: await queryAddress(address) })
   } catch (error) {
     //send an error instead
-    socket.emit("response", { index, error })
+    socket.emit("response", {
+      index,
+      error: { stack: error.stack, message: error.message }
+    })
   }
 }
 
