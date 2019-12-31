@@ -1,25 +1,11 @@
 {
-  "eslint.validate": [
-    {
-      "language": "vue",
-      "autoFix": true
-    },
-    {
-      "language": "html",
-      "autoFix": true
-    },
-    {
-      "language": "javascript",
-      "autoFix": true
-    }
-  ],
+  "eslint.validate": ["vue", "html", "javascript"],
   "[javascript]": {
     "editor.formatOnSave": false
   },
   "[vue]": {
     "editor.formatOnSave": false
   },
-  "eslint.autoFixOnSave": true,
   "editor.formatOnSave": true,
   "editor.tabSize": 2,
   "files.insertFinalNewline": true,
